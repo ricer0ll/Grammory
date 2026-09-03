@@ -41,63 +41,55 @@ class KoboldClient(KoboldInterface):
         self.url = url
 
     def extract_facts(self, messages: list[Message]) -> list[str]:
+        system_prompt = EXTRACT_FACT_SYSTEM_PROMPT
         grammar = self._json_to_grammar(EXTRACT_FACTS_JSON_SCHEMA)
-        memory = EXTRACT_FACT_SYSTEM_PROMPT
-        extractable_facts_messages: list[Message] = []
 
-        for message in messages:
-            if self._extractable_user_facts_ispresent(message):
-                extractable_facts_messages.append(message)
+        relevant_messages = [
+            message for message in messages
+            if self._extractable_user_facts_ispresent(message)
+        ]
 
-        extract_facts_obj: dict[str, list] = {
-            "facts": []
-        }
-        for fact in extractable_facts_messages:
-            prompt = f"{fact.user_id}: {fact.content}"
-            text_completion_response = self._text_completion_gbnf(memory, prompt, grammar)
+        all_facts: list[str] = []
+        for message in relevant_messages:
+            prompt = f"{message.user_id}: {message.content}"
+            response = self._text_completion_gbnf(system_prompt, prompt, grammar)
 
-            extract_facts_json_string = text_completion_response.results[0].text
-            extract_facts_obj["facts"].extend(json.loads(extract_facts_json_string).get("facts", []))
+            facts_json = response.results[0].text
+            all_facts.extend(json.loads(facts_json).get("facts", []))
 
-        return extract_facts_obj.get("facts", [])
+        return all_facts
 
     def _extractable_user_facts_ispresent(self, message: Message) -> bool:
-        memory = CHECK_FOR_EXTRACTABLE_USER_FACTS_PROMPT
+        system_prompt = CHECK_FOR_EXTRACTABLE_USER_FACTS_PROMPT
         grammar = EXTRACTABLE_FACTS_CHECK_GRAMMER
         prompt = f"{message.user_id}: {message.content}"
 
-        text_completion_response = self._text_completion_gbnf(memory, prompt, grammar)
+        response = self._text_completion_gbnf(system_prompt, prompt, grammar)
 
-        match text_completion_response.results[0].text:
-            case "yes":
-                return True
-            case "no":
-                return False
-            case _:
-                return False
+        return response.results[0].text == "yes"
 
     def _text_completion_gbnf(self, memory: str, prompt: str, grammar: str) -> TextCompletionResponse:
-        req = TextCompletionRequest(
+        request = TextCompletionRequest(
             memory=self._apply_chat_template_to_system(memory),
             prompt=self._apply_chat_template_to_prompt(prompt),
             grammar=grammar
         )
 
-        text_completion_resp = requests.post(
+        response = requests.post(
             self.url + "/api/v1/generate",
-            json=req.model_dump()
+            json=request.model_dump()
         )
 
-        return TextCompletionResponse.model_validate_json(text_completion_resp.text)
+        return TextCompletionResponse.model_validate_json(response.text)
 
     def _json_to_grammar(self, schema: dict) -> str:
-        resp = requests.post(
+        response = requests.post(
             self.url + "/api/extra/json_to_grammar",
             json=schema
         )
 
-        json_to_grammar_resp = JsonToGrammarResponse.model_validate_json(resp.text)
-        return json_to_grammar_resp.result
+        parsed_response = JsonToGrammarResponse.model_validate_json(response.text)
+        return parsed_response.result
 
     def _apply_chat_template_to_prompt(self, prompt: str) -> str:
         return BOS_TOKEN + prompt + EOS_TOKEN
@@ -106,9 +98,5 @@ class KoboldClient(KoboldInterface):
         return SYSTEM_BOS_TOKEN + memory
 
     def _format_messages(self, messages: list[Message]) -> str:
-        prompt: str = ""
-        for message in messages:
-            prompt += f"{message.user_id}: {message.content}\n"
-        prompt = prompt.rstrip("\n")
-        return prompt
-
+        lines = [f"{message.user_id}: {message.content}" for message in messages]
+        return "\n".join(lines)
