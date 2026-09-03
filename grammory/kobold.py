@@ -57,7 +57,7 @@ class KoboldClient(KoboldInterface):
             text_completion_response = self._text_completion_gbnf(memory, prompt, grammar)
 
             extract_facts_json_string = text_completion_response.results[0].text
-            extract_facts_obj["facts"].append(json.loads(extract_facts_json_string).get("facts", []))
+            extract_facts_obj["facts"].extend(json.loads(extract_facts_json_string).get("facts", []))
 
         return extract_facts_obj.get("facts", [])
 
