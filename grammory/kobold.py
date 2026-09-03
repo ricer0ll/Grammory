@@ -49,13 +49,17 @@ class KoboldClient(KoboldInterface):
             if self._extractable_user_facts_ispresent(message):
                 extractable_facts_messages.append(message)
 
-        prompt = self._format_messages(extractable_facts_messages)
+        extract_facts_obj: dict[str, list] = {
+            "facts": []
+        }
+        for fact in extractable_facts_messages:
+            prompt = self._format_messages(extractable_facts_messages)
+            text_completion_response = self._text_completion_gbnf(memory, prompt, grammar)
 
-        text_completion_response = self._text_completion_gbnf(memory, prompt, grammar)
+            extract_facts_json_string = text_completion_response.results[0].text
+            extract_facts_obj["facts"].append(json.loads(extract_facts_json_string).get("facts", []))
 
-        extract_facts_json_string = text_completion_response.results[0].text
-        extract_facts_obj: dict = json.loads(extract_facts_json_string)
-        return extract_facts_obj.get("facts", "")
+        return extract_facts_obj.get("facts", [])
 
     def _extractable_user_facts_ispresent(self, message: Message) -> bool:
         memory = CHECK_FOR_EXTRACTABLE_USER_FACTS_PROMPT
