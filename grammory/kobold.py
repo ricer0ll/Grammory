@@ -60,7 +60,7 @@ class KoboldClient(KoboldInterface):
     def _extractable_user_facts_ispresent(self, message: Message) -> bool:
         memory = CHECK_FOR_EXTRACTABLE_USER_FACTS_PROMPT
         grammar = EXTRACTABLE_FACTS_CHECK_GRAMMER
-        prompt = message.content
+        prompt = f"{message.user_id}: {message.content}"
 
         text_completion_response = self._text_completion_gbnf(memory, prompt, grammar)
 
@@ -104,7 +104,7 @@ class KoboldClient(KoboldInterface):
     def _format_messages(self, messages: list[Message]) -> str:
         prompt: str = ""
         for message in messages:
-            prompt += message.content + "\n"
+            prompt += f"{message.user_id}: {message.content}\n"
         prompt = prompt.rstrip("\n")
         return prompt
 
