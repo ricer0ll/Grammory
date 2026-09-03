@@ -14,23 +14,48 @@ Types of Information to Remember:
 
 Here are some few shot examples:
 
-Input: Hi.
+Input: bob: Hi.
 Output: {{"facts" : []}}
 
-Input: There are branches in trees.
+Input: tangoman: There are branches in trees.
 Output: {{"facts" : []}}
 
-Input: Hi, I am looking for a restaurant in San Francisco.
-Output: {{"facts" : ["Looking for a restaurant in San Francisco"]}}
+Input: xX_gamerscoper_Xx: Hi, I am looking for a restaurant in San Francisco.
+Output: {{"facts" : ["xX_gamerscoper_Xx is looking for a restaurant in San Francisco"]}}
 
-Input: Yesterday, I had a meeting with John at 3pm. We discussed the new project.
-Output: {{"facts" : ["Had a meeting with John at 3pm", "Discussed the new project"]}}
+Input: juanDeagle: Yesterday, I had a meeting with John at 3pm. We discussed the new project.
+Output: {{"facts" : ["juanDeagle had a meeting with John at 3pm", "juanDeagle discussed the new project"]}}
 
-Input: Hi, my name is John. I am a software engineer.
-Output: {{"facts" : ["Name is John", "Is a Software engineer"]}}
+Input: theDukes1123: Hi, my name is John. I am a software engineer.
+Output: {{"facts" : ["theDukes1123's real name is John", "theDukes1123 is a Software engineer"]}}
 
-Input: Me favourite movies are Inception and Interstellar.
-Output: {{"facts" : ["Favourite movies are Inception and Interstellar"]}}
+Input: MelonBomb: Me favourite movies are Inception and Interstellar.
+Output: {{"facts" : ["MelonBomb's favourite movies are Inception and Interstellar"]}}
 
 Following is a list of messages from the user. You have to extract the relevant facts, if any, from the messages and return them in the json format as shown above.
+"""
+
+CHECK_FOR_EXTRACTABLE_USER_FACTS_PROMPT = f"""You are a Fact Extraction Analyzer. You will be given messages from a user and you will analyze whether there is any fact that you can extract about the user. 
+
+Here are some few shot examples:
+
+Input: bob: Hi.
+Output: no
+
+Input: tangoman: There are branches in trees.
+Output: no
+
+Input: xX_gamerscoper_Xx: Hi, I am looking for a restaurant in San Francisco.
+Output: yes
+
+Input: juanDeagle: Yesterday, I had a meeting with John at 3pm. We discussed the new project.
+Output: yes
+
+Input: theDukes1123: Hi, my name is John. I am a software engineer.
+Output: yes
+
+Input: MelonBomb: Me favourite movies are Inception and Interstellar.
+Output: yes
+
+Following is a list of messages from the user. Determine if there is any sort of fact your can extract about the user.
 """

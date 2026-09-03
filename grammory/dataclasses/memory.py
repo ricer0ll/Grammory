@@ -6,3 +6,4 @@ class Memory:
     user_id: str
     memory: str
     created_at: str
+    distance: str

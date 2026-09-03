@@ -1,4 +1,4 @@
-ADD_MEMORY_GRAMMAR_SCHEMA = {
+EXTRACT_FACTS_JSON_SCHEMA = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Generated schema for Root",
   "type": "object",
@@ -14,3 +14,5 @@ ADD_MEMORY_GRAMMAR_SCHEMA = {
     "facts"
   ]
 }
+
+EXTRACTABLE_FACTS_CHECK_GRAMMER = '''root := "yes" | "no"'''
