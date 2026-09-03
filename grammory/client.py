@@ -22,13 +22,13 @@ class Grammory:
             for _ in extracted_facts
         ] # we assume all user_id's per list is the same.
 
-        self.collection.add(
+        self.collection.upsert(
             ids=ids,
             documents=documents,
             metadatas=metadatas
         )
 
-    def search(self, query: str, filters: dict[str, str], n_results: int=3) -> SearchResults:
+    def search(self, query: str, filters: dict[str, str] | None = None, n_results: int = 3) -> SearchResults:
         search_result_list: list[Memory] = []
 
         result = self.collection.query(
