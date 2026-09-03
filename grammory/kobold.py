@@ -53,7 +53,7 @@ class KoboldClient(KoboldInterface):
             "facts": []
         }
         for fact in extractable_facts_messages:
-            prompt = fact.content
+            prompt = f"{fact.user_id}: {fact.content}"
             text_completion_response = self._text_completion_gbnf(memory, prompt, grammar)
 
             extract_facts_json_string = text_completion_response.results[0].text
