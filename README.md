@@ -15,11 +15,11 @@ Grammory augments AI agents, assistants, and chatbots with an efficient and powe
 Grammory sits between your application and your LLM, intercepting relevant turns to extract, store, and recall memories.
 
 1. Conversation turns are passed to Grammory.
-2. Grammory prompts the LLM (via KoboldCpp) to extract memory-worthy information, using a GBNF grammar to guarantee valid, structured JSON output.
+2. Grammory prompts the LLM (via KoboldCpp) to extract memory-worthy information, using a GBNF grammar to guarantee valid, structured JSON output to process.
 3. Extracted memories are embedded and stored in ChromaDB.
 4. On future turns, relevant memories are retrieved via semantic search and injected back into context.
 
-<!-- EXAMPLE: Basic usage snippet goes here -->
+## Basic Usage
 
 ```python
 import chromadb
