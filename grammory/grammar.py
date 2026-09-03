@@ -15,4 +15,4 @@ EXTRACT_FACTS_JSON_SCHEMA = {
   ]
 }
 
-EXTRACTABLE_FACTS_CHECK_GRAMMER = '''root := "yes" | "no"'''
+EXTRACTABLE_FACTS_CHECK_GRAMMER = '''root ::= "yes" | "no"'''
