@@ -1,8 +1,12 @@
-from mockkobold import MockKoboldClient
-from grammory import Message
+import os
+from grammory import Message, kobold
+from dotenv import load_dotenv
 
 def test_kobold():
-    mock_kobold_client = MockKoboldClient()
+    load_dotenv()
+    llm_host_addr = os.getenv("LLM_HOST_ADDRESS")
+
+    mock_kobold_client = kobold.KoboldCppClient(url=llm_host_addr)
 
     messages: list = [
         Message("test", "I'm a vegetarian and allergic to nuts."),

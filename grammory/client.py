@@ -2,12 +2,12 @@ import uuid
 from datetime import datetime
 import chromadb
 from .dataclasses import Message, SearchResults, Memory
-from .kobold import KoboldInterface
+from .llm_client import LLMClient
 
 class Grammory:
-    def __init__(self, collection: chromadb.Collection, kobold_client: KoboldInterface):
+    def __init__(self, collection: chromadb.Collection, kobold_client: LLMClient):
         self.collection: chromadb.Collection = collection
-        self.kobold_client: KoboldInterface = kobold_client
+        self.kobold_client: LLMClient = kobold_client
 
     def add_user_fact(self, messages: list[Message]):
         if len(messages) == 0:

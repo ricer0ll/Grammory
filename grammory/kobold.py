@@ -1,44 +1,28 @@
-from abc import ABC, abstractmethod
 import requests
 import json
-from .models import TextCompletionRequest, TextCompletionResponse, JsonToGrammarResponse
+from .llm_client import LLMClient
 from .dataclasses import Message, Memory
-from .prompts import EXTRACT_FACT_SYSTEM_PROMPT, CHECK_FOR_EXTRACTABLE_USER_FACTS_PROMPT
-from .grammar import EXTRACT_FACTS_JSON_SCHEMA, EXTRACTABLE_FACTS_CHECK_GRAMMER
+from .models import (
+    TextCompletionRequest, 
+    TextCompletionResponse, 
+    JsonToGrammarResponse
+)
+from .prompts import (
+    EXTRACT_FACT_SYSTEM_PROMPT, CHECK_FOR_EXTRACTABLE_USER_FACTS_PROMPT
+)
+from .grammar import (
+    EXTRACT_FACTS_JSON_SCHEMA, 
+    EXTRACTABLE_FACTS_CHECK_GRAMMER
+)
 
 BOS_TOKEN = "{{[INPUT]}}"
 EOS_TOKEN = "{{[OUTPUT]}}"
 SYSTEM_BOS_TOKEN = "{{[SYSTEM]}}"
 
-class KoboldInterface(ABC):
-    @abstractmethod
-    def extract_facts(self, messages: list[Message]) -> list[str]:
-        """Extract facts from user messages, returning a list of strings (facts)"""
-
-    @abstractmethod
-    def _text_completion_gbnf(self) -> TextCompletionResponse:
-        """Text completion generation w/ GBNF."""
-
-    @abstractmethod
-    def _extractable_user_facts_ispresent(self, message: Message) -> bool:
-        """Checks a message, whether or not it contains some info about a user"""
-
-    @abstractmethod
-    def _json_to_grammar(self, schema: dict) -> str:
-        "Convert json schema to gbnf"
-
-    @abstractmethod
-    def _apply_chat_template_to_prompt(self, prompt: str) -> str:
-        """Applies BOS/EOS tokens to prompt"""
-
-    @abstractmethod
-    def _apply_chat_template_to_system(self, memory: str) -> str:
-        """Applies BOS/EOS tokens to system prompt (referred as memory in koboldcpp apis)"""
-
-
-class KoboldClient(KoboldInterface):
-    def __init__(self, url="http://127.0.0.1:5001"):
+class KoboldCppClient(LLMClient):
+    def __init__(self, url: str = "http://127.0.0.1:5001", api_key: str | None = None):
         self.url = url
+        self.api_key = api_key
 
     def extract_facts(self, messages: list[Message]) -> list[str]:
         system_prompt = EXTRACT_FACT_SYSTEM_PROMPT
@@ -75,9 +59,14 @@ class KoboldClient(KoboldInterface):
             grammar=grammar
         )
 
+        headers = {}
+        if self.api_key:
+            headers["Authorization"] = "Bearer " + self.api_key
+
         response = requests.post(
             self.url + "/api/v1/generate",
-            json=request.model_dump()
+            json=request.model_dump(),
+            headers=headers
         )
 
         return TextCompletionResponse.model_validate_json(response.text)
